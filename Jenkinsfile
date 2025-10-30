@@ -58,6 +58,10 @@ pipeline {
     }
     post {
         always {
+           /* Try to run this script in Jenkins Dashboard > Manage Jenkins > section “Tools and actions” > Script Console:
+
+             System.setProperty("hudson.model.DirectoryBrowserSupport.CSP", "sandbox allow-scripts;") This will create below publishhtml line copy and paste here
+            */
             junit 'jest-results/junit.xml'
             publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'playwright HTML Report', reportTitles: '', useWrapperFileDirectly: true])
         }
