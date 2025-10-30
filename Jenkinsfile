@@ -2,6 +2,10 @@ pipeline {
     agent any
 
     stages {
+        // this is comment
+        /* 
+        we can comment multilpe line or any build stage configuration.
+        */
         stage('Build') {
             agent {
                 docker {
