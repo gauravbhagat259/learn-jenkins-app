@@ -1,11 +1,9 @@
+/*
 pipeline {
     agent any
 
     stages {
         // this is comment
-        /* 
-        we can comment multilpe line or any build stage configuration.
-        */
         stage('Build') {
             agent {
                 docker {
@@ -56,12 +54,34 @@ pipeline {
                         npx playwright test
                     '''
                     }
+                    
                 }               
 
             }
 
         }
-        /*stage('Test') {
+    }
+    post {
+        always {
+           // Try to run this script in Jenkins Dashboard > Manage Jenkins > section “Tools and actions” > Script Console:
+
+            // System.setProperty("hudson.model.DirectoryBrowserSupport.CSP", "sandbox allow-scripts;") This will create below publishhtml line copy and paste here
+            
+            junit 'jest-results/junit.xml'
+            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'playwright HTML Report', reportTitles: '', useWrapperFileDirectly: true])
+        }
+    }
+}
+
+*/
+
+pipeline {
+    agent any
+
+    stages {
+        /*
+
+        stage('Build') {
             agent {
                 docker {
                     image 'node:18-alpine'
@@ -69,38 +89,65 @@ pipeline {
                 }
             }
             steps {
-               sh '''
-               ls -ltrh build/index.html
-               test -f build/index.html
-               npm test
-               '''
+                sh '''
+                    ls -la
+                    node --version
+                    npm --version
+                    npm ci
+                    npm run build
+                    ls -la
+                '''
             }
         }
-        stage('E2E') {
-            agent {
-                docker {
-                    image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
-                    reuseNode true
+        */
+
+        stage('Tests') {
+            parallel {
+                stage('Unit tests') {
+                    agent {
+                        docker {
+                            image 'node:18-alpine'
+                            reuseNode true
+                        }
+                    }
+
+                    steps {
+                        sh '''
+                            #test -f build/index.html
+                            npm test
+                        '''
+                    }
+                    post {
+                        always {
+                            junit 'jest-results/junit.xml'
+                        }
+                    }
+                }
+
+                stage('E2E') {
+                    agent {
+                        docker {
+                            image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                            reuseNode true
+                        }
+                    }
+
+                    steps {
+                        sh '''
+                            npm install serve
+                            node_modules/.bin/serve -s build &
+                            sleep 10
+                            npx playwright test  --reporter=html
+                        '''
+                    }
+
+                    post {
+                        always {
+                            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright HTML Report', reportTitles: '', useWrapperFileDirectly: true])
+                        }
+                    }
                 }
             }
-            steps {
-               sh '''
-                 npm install serve
-                 node_modules/.bin/serve -s build & #run tool in background
-                 sleep 10
-                 npx playwright test
-               '''
-            }
-        } */
-    }
-    post {
-        always {
-           /* Try to run this script in Jenkins Dashboard > Manage Jenkins > section “Tools and actions” > Script Console:
-
-             System.setProperty("hudson.model.DirectoryBrowserSupport.CSP", "sandbox allow-scripts;") This will create below publishhtml line copy and paste here
-            */
-            junit 'jest-results/junit.xml'
-            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'playwright HTML Report', reportTitles: '', useWrapperFileDirectly: true])
         }
     }
 }
