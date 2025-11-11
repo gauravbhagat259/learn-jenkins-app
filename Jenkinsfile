@@ -80,7 +80,7 @@ pipeline {
 
     environment {
         NETLIFY_SITE_ID = '900d0fb0-4e52-48a7-ac13-5ddf0d880f65'
-        NETLIFY_AUTH_TOKEN = credentials("netlify-token") 
+        NETLIFY_AUTH_TOKEN = credentials("netlify-token")
     }
 
     stages {
@@ -166,6 +166,32 @@ pipeline {
                     node_modules/.bin/netlify status
                     node_modules/.bin/netlify deploy --dir=build --prod
                 '''
+            }
+        }
+        stage('Prod E2E') {
+            agent {
+                docker {
+                    image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                    reuseNode true
+                }
+            }
+            environment {
+                CI_ENVIRONMENT_URL = 'https://fantastic-bubblegum-54131b.netlify.app'
+            }
+
+            steps {
+                sh '''
+                    npm install serve
+                    node_modules/.bin/serve -s build &
+                    sleep 10
+                    npx playwright test  --reporter=html
+                '''
+            }
+
+            post {
+                always {
+                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright HTML Report', reportTitles: '', useWrapperFileDirectly: true])
+                }
             }
         }
     }
