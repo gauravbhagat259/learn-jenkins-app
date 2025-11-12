@@ -85,8 +85,8 @@ pipeline {
     }
 
     stages {
-        stage{
-            steps{
+        stage {
+            steps {
                 sh 'docker build -t my-playwright .'
             }
         }
