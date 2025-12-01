@@ -102,6 +102,8 @@ pipeline {
                         aws configure set region ap-south-1
                         aws --version
                         aws s3 ls
+                        echo " Hello S3!" > index.html
+                        aws s3 cp index.html s3://learn-aws-jenkins/index.html
                     '''
                 }
             }
