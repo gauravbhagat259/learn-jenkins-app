@@ -108,6 +108,7 @@ pipeline {
             agent {
                 docker {
                     image 'python:3.11-slim'
+                    reuseNode true
                     //image 'amazon/aws-cli'
                     args "--entrypoint='' -u root "
                 }
