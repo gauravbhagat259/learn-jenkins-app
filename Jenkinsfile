@@ -126,7 +126,7 @@ pipeline {
                         aws s3 ls
                         # echo " Hello S3!" > index.html
                         # aws s3 cp index.html s3://$AWS_S3_BUCKET/index.html
-                        aws s3 sync . s3://$AWS_S3_BUCKET
+                        aws s3 sync build s3://$AWS_S3_BUCKET
                     '''
                 }
             }
