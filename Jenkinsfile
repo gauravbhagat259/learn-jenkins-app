@@ -90,14 +90,15 @@ pipeline {
             agent {
                 docker {
                     image 'amazon/aws-cli'
-                    args "--entrypoint=''"
+                    args "--entrypoint='' -u root "
                 }
             }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'my-aws', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
                     sh '''
+                        # Update CA certificates first
+                        yum update -y ca-certificates
                         aws --version
-                        aws s3 ls --no-verify-ssl
                         aws s3 ls
                     '''
                 }
