@@ -89,14 +89,17 @@ pipeline {
         stage (AWS) {
             agent {
                 docker {
-                    //image 'python:3.11-slim'
-                    image 'amazon/aws-cli'
+                    image 'python:3.11-slim'
+                    //image 'amazon/aws-cli'
                     args "--entrypoint='' -u root "
                 }
             }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'my-aws', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
                     sh '''
+                        apt-get update && apt-get install -y ca-certificates
+                        pip install awscli
+                        aws configure set region ap-south-1
                         aws --version
                         aws s3 ls
                     '''
