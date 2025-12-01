@@ -89,8 +89,8 @@ pipeline {
         stage (AWS) {
             agent {
                 docker {
-                    image 'python:3.11-slim'
-                    // image 'amazon/aws-cli'
+                    //image 'python:3.11-slim'
+                    image 'amazon/aws-cli'
                     args "--entrypoint='' -u root "
                 }
             }
